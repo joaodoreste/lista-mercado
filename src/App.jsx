@@ -45,7 +45,6 @@ function App() {
   const [produtos, setProdutos] = useState([]);
   const [nome, setNome] = useState("");
   const [setor, setSetor] = useState("Mercearia");
-  const [quantidade, setQuantidade] = useState(1);
   const [produtoEditandoId, setProdutoEditandoId] = useState(null);
   const [modoMercado, setModoMercado] = useState(false);
   const [setoresAbertos, setSetoresAbertos] = useState({});
@@ -67,15 +66,14 @@ function App() {
   function limparFormulario() {
     setNome("");
     setSetor("Mercearia");
-    setQuantidade(1);
     setProdutoEditandoId(null);
   }
 
   function salvarProduto(event) {
     event.preventDefault();
 
-    if (!nome || !setor || !quantidade) {
-      alert("Preencha produto, setor e quantidade.");
+    if (!nome || !setor) {
+      alert("Preencha produto e setor.");
       return;
     }
 
@@ -85,8 +83,7 @@ function App() {
               ? {
                 ...produto,
                 nome: nome.trim(),
-                setor,
-                quantidade: Number(quantidade)
+                setor
               }
               : produto
       );
@@ -101,7 +98,7 @@ function App() {
       id: Date.now(),
       nome: nome.trim(),
       setor,
-      quantidade: Number(quantidade),
+      quantidade: 0,
       valor: 0,
       comprado: false
     };
@@ -118,7 +115,20 @@ function App() {
     setProdutoEditandoId(produto.id);
     setNome(produto.nome);
     setSetor(produto.setor || "Mercearia");
-    setQuantidade(String(produto.quantidade));
+  }
+
+  function alterarQuantidadeProduto(produtoId, novaQuantidade) {
+    const produtosAtualizados = produtos.map(produto =>
+        produto.id === produtoId
+            ? {
+              ...produto,
+              quantidade: Number(novaQuantidade)
+            }
+            : produto
+    );
+
+    setProdutos(produtosAtualizados);
+    salvarProdutos(produtosAtualizados);
   }
 
   function alterarValorProduto(produtoId, novoValor) {
@@ -214,7 +224,7 @@ function App() {
         const produtosTratados = produtosImportados.map(produto => ({
           ...produto,
           valor: Number(produto.valor || 0),
-          quantidade: Number(produto.quantidade || 1),
+          quantidade: Number(produto.quantidade || 0),
           setor: produto.setor || "Mercearia",
           comprado: Boolean(produto.comprado)
         }));
@@ -240,14 +250,20 @@ function App() {
   }
 
   const totalEstimado = produtos.reduce(
-      (total, produto) => total + Number(produto.valor || 0) * produto.quantidade,
+      (total, produto) =>
+          total +
+          Number(produto.valor || 0) *
+          Number(produto.quantidade || 0),
       0
   );
 
   const totalCompra = produtos
       .filter(produto => produto.comprado)
       .reduce(
-          (total, produto) => total + Number(produto.valor || 0) * produto.quantidade,
+          (total, produto) =>
+              total +
+              Number(produto.valor || 0) *
+              Number(produto.quantidade || 0),
           0
       );
 
@@ -354,7 +370,7 @@ function App() {
                 </Typography>
 
                 <Typography variant="body2" color="text.secondary">
-                  Coloque o produto e a quantidade em casa. O valor pode ser preenchido depois, no mercado.
+                  Coloque apenas o produto e o setor em casa. Quantidade e valor podem ser preenchidos no mercado.
                 </Typography>
 
                 <Box component="form" onSubmit={salvarProduto}>
@@ -381,15 +397,6 @@ function App() {
                       ))}
                     </Select>
                   </FormControl>
-
-                  <TextField
-                      label="Quantidade"
-                      type="number"
-                      value={quantidade}
-                      onChange={event => setQuantidade(event.target.value)}
-                      fullWidth
-                      margin="normal"
-                  />
 
                   <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
                     <Button type="submit" variant="contained">
@@ -458,7 +465,8 @@ function App() {
                         <List disablePadding>
                           {produtosDoSetor.map((produto, index) => {
                             const valorProduto = Number(produto.valor || 0);
-                            const totalProduto = valorProduto * produto.quantidade;
+                            const quantidadeProduto = Number(produto.quantidade || 0);
+                            const totalProduto = valorProduto * quantidadeProduto;
 
                             return (
                                 <Box key={produto.id}>
@@ -512,24 +520,46 @@ function App() {
                                               {produto.nome}
                                             </Typography>
                                           }
-                                          secondary={`${produto.quantidade}x • Total R$ ${totalProduto.toFixed(2)}`}
+                                          secondary={`Total R$ ${totalProduto.toFixed(2)}`}
                                       />
                                     </ListItemButton>
 
-                                    <TextField
-                                        label="Valor"
-                                        type="number"
-                                        size="small"
-                                        value={valorProduto || ""}
-                                        onChange={event =>
-                                            alterarValorProduto(produto.id, event.target.value)
-                                        }
-                                        onClick={event => event.stopPropagation()}
+                                    <Box
                                         sx={{
-                                          width: 95,
+                                          display: "flex",
+                                          gap: 1,
                                           mr: modoMercado ? 1 : 9
                                         }}
-                                    />
+                                        onClick={event => event.stopPropagation()}
+                                    >
+                                      <TextField
+                                          label="Qtd"
+                                          type="number"
+                                          size="small"
+                                          value={quantidadeProduto || ""}
+                                          onChange={event =>
+                                              alterarQuantidadeProduto(
+                                                  produto.id,
+                                                  event.target.value
+                                              )
+                                          }
+                                          sx={{ width: 70 }}
+                                      />
+
+                                      <TextField
+                                          label="Valor"
+                                          type="number"
+                                          size="small"
+                                          value={valorProduto || ""}
+                                          onChange={event =>
+                                              alterarValorProduto(
+                                                  produto.id,
+                                                  event.target.value
+                                              )
+                                          }
+                                          sx={{ width: 95 }}
+                                      />
+                                    </Box>
                                   </ListItem>
 
                                   {index < produtosDoSetor.length - 1 && <Divider />}
