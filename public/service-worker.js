@@ -1,4 +1,4 @@
-const CACHE_NAME = "lista-mercado-v1";
+const CACHE_NAME = "lista-mercado-v2";
 const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/logo.png"];
 
 self.addEventListener("install", event => {
@@ -21,14 +21,12 @@ self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) return cachedResponse;
-
-      return fetch(event.request).then(response => {
+    fetch(event.request)
+      .then(response => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         return response;
-      });
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
 });
