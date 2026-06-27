@@ -1,580 +1,342 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { lazy, Suspense } from "react";
 import {
+  Alert,
+  AppBar,
   Box,
-  Button,
-  Card,
-  CardContent,
-  Checkbox,
-  Collapse,
+  BottomNavigation,
+  BottomNavigationAction,
+  CircularProgress,
   Container,
-  Divider,
-  FormControl,
+  Fab,
   IconButton,
-  InputLabel,
-  LinearProgress,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  MenuItem,
-  Select,
-  TextField,
+  Paper,
+  Snackbar,
+  Stack,
+  Toolbar,
+  Tooltip,
   Typography
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import {
-  buscarProdutos,
-  salvarProdutos
-} from "./services/localStorageService";
+import AddIcon from "@mui/icons-material/Add";
+import HistoryIcon from "@mui/icons-material/History";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import SettingsIcon from "@mui/icons-material/Settings";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DialogConfirmacao from "./components/DialogConfirmacao";
+import ListaPorSetor from "./components/ListaPorSetor";
+import PainelFiltros from "./components/PainelFiltros";
+import ResumoCompra from "./components/ResumoCompra";
+import { formatarMoeda, parseMoeda } from "./domain/produtos";
+import { useMercadoApp } from "./hooks/useMercadoApp";
 
-const setores = [
-  "Mercearia",
-  "Açougue",
-  "Hortifruti",
-  "Limpeza",
-  "Bebidas",
-  "Frios",
-  "Padaria",
-  "Outros"
-];
+const FormularioProduto = lazy(() => import("./components/FormularioProduto"));
+const HistoricoCompras = lazy(() => import("./components/HistoricoCompras"));
+const ImportarTextoDialog = lazy(() => import("./components/ImportarTextoDialog"));
+const OrcamentoCard = lazy(() => import("./components/OrcamentoCard"));
+const SetoresDialog = lazy(() => import("./components/SetoresDialog"));
 
-function App() {
-  const [produtos, setProdutos] = useState([]);
-  const [nome, setNome] = useState("");
-  const [setor, setSetor] = useState("Mercearia");
-  const [produtoEditandoId, setProdutoEditandoId] = useState(null);
-  const [modoMercado, setModoMercado] = useState(false);
-  const [setoresAbertos, setSetoresAbertos] = useState({});
-
-  const inputArquivoRef = useRef(null);
-
-  useEffect(() => {
-    const produtosSalvos = buscarProdutos();
-    setProdutos(produtosSalvos);
-
-    const setoresIniciais = {};
-    setores.forEach(setor => {
-      setoresIniciais[setor] = true;
-    });
-
-    setSetoresAbertos(setoresIniciais);
-  }, []);
-
-  function limparFormulario() {
-    setNome("");
-    setSetor("Mercearia");
-    setProdutoEditandoId(null);
-  }
-
-  function salvarProduto(event) {
-    event.preventDefault();
-
-    if (!nome || !setor) {
-      alert("Preencha produto e setor.");
-      return;
-    }
-
-    if (produtoEditandoId) {
-      const produtosAtualizados = produtos.map(produto =>
-          produto.id === produtoEditandoId
-              ? {
-                ...produto,
-                nome: nome.trim(),
-                setor
-              }
-              : produto
-      );
-
-      setProdutos(produtosAtualizados);
-      salvarProdutos(produtosAtualizados);
-      limparFormulario();
-      return;
-    }
-
-    const novoProduto = {
-      id: Date.now(),
-      nome: nome.trim(),
-      setor,
-      quantidade: 0,
-      valor: 0,
-      comprado: false
-    };
-
-    const novosProdutos = [...produtos, novoProduto];
-
-    setProdutos(novosProdutos);
-    salvarProdutos(novosProdutos);
-    limparFormulario();
-  }
-
-  function editarProduto(produto) {
-    setModoMercado(false);
-    setProdutoEditandoId(produto.id);
-    setNome(produto.nome);
-    setSetor(produto.setor || "Mercearia");
-  }
-
-  function alterarQuantidadeProduto(produtoId, novaQuantidade) {
-    const produtosAtualizados = produtos.map(produto =>
-        produto.id === produtoId
-            ? {
-              ...produto,
-              quantidade: Number(novaQuantidade)
-            }
-            : produto
-    );
-
-    setProdutos(produtosAtualizados);
-    salvarProdutos(produtosAtualizados);
-  }
-
-  function alterarValorProduto(produtoId, novoValor) {
-    const produtosAtualizados = produtos.map(produto =>
-        produto.id === produtoId
-            ? {
-              ...produto,
-              valor: Number(novoValor)
-            }
-            : produto
-    );
-
-    setProdutos(produtosAtualizados);
-    salvarProdutos(produtosAtualizados);
-  }
-
-  function alternarComprado(produtoId) {
-    const produtosAtualizados = produtos.map(produto =>
-        produto.id === produtoId
-            ? { ...produto, comprado: !produto.comprado }
-            : produto
-    );
-
-    setProdutos(produtosAtualizados);
-    salvarProdutos(produtosAtualizados);
-  }
-
-  function excluirProduto(produtoId) {
-    const confirmar = confirm("Deseja excluir esse produto?");
-    if (!confirmar) return;
-
-    const produtosAtualizados = produtos.filter(
-        produto => produto.id !== produtoId
-    );
-
-    setProdutos(produtosAtualizados);
-    salvarProdutos(produtosAtualizados);
-
-    if (produtoEditandoId === produtoId) {
-      limparFormulario();
-    }
-  }
-
-  function limparLista() {
-    const confirmar = confirm("Deseja limpar toda a lista?");
-    if (!confirmar) return;
-
-    setProdutos([]);
-    salvarProdutos([]);
-    limparFormulario();
-  }
-
-  function alternarSetor(setorAtual) {
-    setSetoresAbertos({
-      ...setoresAbertos,
-      [setorAtual]: !setoresAbertos[setorAtual]
-    });
-  }
-
-  function exportarLista() {
-    const dados = JSON.stringify(produtos, null, 2);
-
-    const blob = new Blob([dados], {
-      type: "application/json"
-    });
-
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "lista-mercado.json";
-    link.click();
-
-    URL.revokeObjectURL(url);
-  }
-
-  function importarLista(event) {
-    const arquivo = event.target.files[0];
-
-    if (!arquivo) return;
-
-    const leitor = new FileReader();
-
-    leitor.onload = function (e) {
-      try {
-        const produtosImportados = JSON.parse(e.target.result);
-
-        if (!Array.isArray(produtosImportados)) {
-          alert("Arquivo inválido.");
-          return;
-        }
-
-        const produtosTratados = produtosImportados.map(produto => ({
-          ...produto,
-          valor: Number(produto.valor || 0),
-          quantidade: Number(produto.quantidade || 0),
-          setor: produto.setor || "Mercearia",
-          comprado: Boolean(produto.comprado)
-        }));
-
-        const confirmar = confirm(
-            "Deseja substituir a lista atual pela lista importada?"
-        );
-
-        if (!confirmar) return;
-
-        setProdutos(produtosTratados);
-        salvarProdutos(produtosTratados);
-        limparFormulario();
-
-        alert("Lista importada com sucesso!");
-      } catch {
-        alert("Erro ao importar arquivo.");
-      }
-    };
-
-    leitor.readAsText(arquivo);
-    event.target.value = "";
-  }
-
-  const totalEstimado = produtos.reduce(
-      (total, produto) =>
-          total +
-          Number(produto.valor || 0) *
-          Number(produto.quantidade || 0),
-      0
-  );
-
-  const totalCompra = produtos
-      .filter(produto => produto.comprado)
-      .reduce(
-          (total, produto) =>
-              total +
-              Number(produto.valor || 0) *
-              Number(produto.quantidade || 0),
-          0
-      );
-
-  const quantidadeComprada = produtos.filter(
-      produto => produto.comprado
-  ).length;
-
-  const quantidadePendente = produtos.length - quantidadeComprada;
-
-  const progresso =
-      produtos.length === 0
-          ? 0
-          : Math.round((quantidadeComprada / produtos.length) * 100);
+function App({ modoTema, onAlternarTema, podeInstalar, onInstalarApp }) {
+  const mercado = useMercadoApp();
+  const {
+    estado,
+    produtos,
+    setores,
+    historico,
+    orcamento,
+    statusOrcamento,
+    dashboardHistorico,
+    resumo,
+    frequentes,
+    sugestoes,
+    produtosPorSetor,
+    formulario,
+    produtoEditandoId,
+    produtoDialogAberto,
+    setoresDialogAberto,
+    importarTextoAberto,
+    textoImportacao,
+    modoMercado,
+    setoresAbertos,
+    busca,
+    filtro,
+    aba,
+    mensagem,
+    confirmacao,
+    inputArquivoRef
+  } = mercado;
 
   return (
-      <Container maxWidth="sm" sx={{ py: 3 }}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
-          Lista de Mercado
-        </Typography>
-
-        <Card sx={{ mb: 2, borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold">
-              Resumo
+    <Box sx={{ minHeight: "100svh", pb: { xs: 9, md: 0 } }}>
+      <AppBar
+        position="sticky"
+        color="inherit"
+        elevation={0}
+        sx={{ borderBottom: 1, borderColor: "divider", backdropFilter: "blur(10px)" }}
+      >
+        <Toolbar>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography variant="h6" fontWeight="bold" noWrap>
+              Lista de Mercado
             </Typography>
+            <Typography variant="body2" color="text.secondary" noWrap>
+              {resumo.totalItens} itens · {formatarMoeda(resumo.totalEstimado)} estimados
+            </Typography>
+          </Box>
 
-            <Box sx={{ mt: 2, mb: 2 }}>
-              <LinearProgress
-                  variant="determinate"
-                  value={progresso}
-                  sx={{ height: 10, borderRadius: 5 }}
+          <Tooltip title={modoTema === "light" ? "Tema escuro" : "Tema claro"}>
+            <IconButton onClick={onAlternarTema} color="inherit">
+              {modoTema === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Setores">
+            <IconButton onClick={() => mercado.setSetoresDialogAberto(true)} color="inherit">
+              <SettingsIcon />
+            </IconButton>
+          </Tooltip>
+        </Toolbar>
+      </AppBar>
+
+      <Container maxWidth="lg" sx={{ py: { xs: 2, md: 3 } }}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "360px minmax(0, 1fr)" },
+            gap: 2.5,
+            alignItems: "start"
+          }}
+        >
+          <Stack spacing={2} sx={{ position: { md: "sticky" }, top: { md: 92 } }}>
+            <ResumoCompra
+              resumo={resumo}
+              modoMercado={modoMercado}
+              temProdutos={produtos.length > 0}
+              inputArquivoRef={inputArquivoRef}
+              onAlternarModoMercado={() => mercado.setModoMercado(modoAtual => !modoAtual)}
+              onExportar={mercado.exportarArquivo}
+              onImportar={mercado.importarLista}
+              onLimparLista={mercado.limparLista}
+              onFinalizarCompra={mercado.finalizarCompra}
+              onCopiarLista={() =>
+                mercado.copiarTexto(
+                  mercado.montarTextoCompartilhamento(produtos),
+                  "Lista copiada."
+                )
+              }
+              onCompartilharWhatsApp={mercado.compartilharWhatsApp}
+              onAbrirImportarTexto={() => mercado.setImportarTextoAberto(true)}
+              onCopiarBackup={() =>
+                mercado.copiarTexto(mercado.exportarBackup(estado), "Backup copiado.")
+              }
+              onColarBackup={mercado.colarBackup}
+              onAbrirSetores={() => mercado.setSetoresDialogAberto(true)}
+              podeInstalar={podeInstalar}
+              onInstalarApp={onInstalarApp}
+            />
+
+            <Suspense fallback={null}>
+              <OrcamentoCard
+                statusOrcamento={statusOrcamento}
+                orcamento={orcamento}
+                onSalvarOrcamento={mercado.salvarOrcamento}
               />
+            </Suspense>
 
-              <Typography sx={{ mt: 1 }}>
-                Progresso: {progresso}%
-              </Typography>
-            </Box>
-
-            <Typography>
-              Total estimado: R$ {totalEstimado.toFixed(2)}
-            </Typography>
-
-            <Typography fontWeight="bold">
-              No carrinho: R$ {totalCompra.toFixed(2)}
-            </Typography>
-
-            <Typography>
-              Itens pegos: {quantidadeComprada} de {produtos.length}
-            </Typography>
-
-            <Typography>
-              Faltando: {quantidadePendente}
-            </Typography>
-
-            <Box sx={{ display: "flex", gap: 1, mt: 2, flexWrap: "wrap" }}>
-              <Button
-                  variant={modoMercado ? "contained" : "outlined"}
-                  onClick={() => setModoMercado(!modoMercado)}
-              >
-                {modoMercado ? "Sair do modo mercado" : "Modo mercado"}
-              </Button>
-
-              <Button
-                  variant="outlined"
-                  onClick={exportarLista}
-                  disabled={produtos.length === 0}
-              >
-                Exportar lista
-              </Button>
-
-              <Button
-                  variant="outlined"
-                  onClick={() => inputArquivoRef.current.click()}
-              >
-                Importar lista
-              </Button>
-
-              <input
-                  type="file"
-                  accept=".json"
-                  ref={inputArquivoRef}
-                  style={{ display: "none" }}
-                  onChange={importarLista}
+            {aba === "lista" && (
+              <PainelFiltros
+                busca={busca}
+                filtro={filtro}
+                produtosFrequentes={frequentes}
+                onBuscaChange={mercado.setBusca}
+                onFiltroChange={mercado.setFiltro}
+                onAdicionarProduto={mercado.abrirNovoProduto}
               />
+            )}
+          </Stack>
 
-              {produtos.length > 0 && !modoMercado && (
-                  <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={limparLista}
-                  >
-                    Limpar lista
-                  </Button>
-              )}
-            </Box>
-          </CardContent>
-        </Card>
+          <Stack spacing={2}>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 0.5,
+                display: { xs: "none", md: "grid" },
+                gridTemplateColumns: "1fr 1fr"
+              }}
+            >
+              <NavButton
+                ativo={aba === "lista"}
+                icon={<ListAltIcon />}
+                label="Lista"
+                onClick={() => mercado.setAba("lista")}
+              />
+              <NavButton
+                ativo={aba === "historico"}
+                icon={<HistoryIcon />}
+                label="Histórico"
+                onClick={() => mercado.setAba("historico")}
+              />
+            </Paper>
 
-        {!modoMercado && (
-            <Card sx={{ mb: 3, borderRadius: 3 }}>
-              <CardContent>
-                <Typography variant="h6" fontWeight="bold" gutterBottom>
-                  {produtoEditandoId ? "Editar Produto" : "Adicionar Produto"}
-                </Typography>
-
-                <Typography variant="body2" color="text.secondary">
-                  Coloque apenas o produto e o setor em casa. Quantidade e valor podem ser preenchidos no mercado.
-                </Typography>
-
-                <Box component="form" onSubmit={salvarProduto}>
-                  <TextField
-                      label="Produto"
-                      value={nome}
-                      onChange={event => setNome(event.target.value)}
-                      placeholder="Ex: Arroz"
-                      fullWidth
-                      margin="normal"
-                  />
-
-                  <FormControl fullWidth margin="normal">
-                    <InputLabel>Setor</InputLabel>
-                    <Select
-                        value={setor}
-                        label="Setor"
-                        onChange={event => setSetor(event.target.value)}
-                    >
-                      {setores.map(item => (
-                          <MenuItem key={item} value={item}>
-                            {item}
-                          </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
-                    <Button type="submit" variant="contained">
-                      {produtoEditandoId ? "Salvar" : "Adicionar"}
-                    </Button>
-
-                    {produtoEditandoId && (
-                        <Button
-                            type="button"
-                            variant="outlined"
-                            onClick={limparFormulario}
-                        >
-                          Cancelar
-                        </Button>
-                    )}
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-        )}
-
-        <Typography variant="h6" fontWeight="bold" gutterBottom>
-          Produtos
-        </Typography>
-
-        {produtos.length === 0 ? (
-            <Typography>Nenhum produto adicionado.</Typography>
-        ) : (
-            setores.map(setorAtual => {
-              const produtosDoSetor = [...produtos]
-                  .filter(produto => (produto.setor || "Mercearia") === setorAtual)
-                  .sort((a, b) => {
-                    if (a.comprado === b.comprado) return 0;
-                    return a.comprado ? 1 : -1;
-                  });
-
-              if (produtosDoSetor.length === 0) return null;
-
-              const compradosDoSetor = produtosDoSetor.filter(
-                  produto => produto.comprado
-              ).length;
-
-              return (
-                  <Box key={setorAtual} sx={{ mb: 2 }}>
-                    <Card sx={{ borderRadius: 3 }}>
-                      <ListItemButton onClick={() => alternarSetor(setorAtual)}>
-                        {setoresAbertos[setorAtual] ? (
-                            <KeyboardArrowDownIcon />
-                        ) : (
-                            <KeyboardArrowRightIcon />
-                        )}
-
-                        <ListItemText
-                            primary={
-                              <Typography fontWeight="bold">
-                                {setorAtual}
-                              </Typography>
-                            }
-                            secondary={`${compradosDoSetor} de ${produtosDoSetor.length} pegos`}
-                        />
-                      </ListItemButton>
-
-                      <Collapse in={setoresAbertos[setorAtual]}>
-                        <Divider />
-
-                        <List disablePadding>
-                          {produtosDoSetor.map((produto, index) => {
-                            const valorProduto = Number(produto.valor || 0);
-                            const quantidadeProduto = Number(produto.quantidade || 0);
-                            const totalProduto = valorProduto * quantidadeProduto;
-
-                            return (
-                                <Box key={produto.id}>
-                                  <ListItem
-                                      disablePadding
-                                      secondaryAction={
-                                          !modoMercado && (
-                                              <Box>
-                                                <IconButton
-                                                    edge="end"
-                                                    onClick={() => editarProduto(produto)}
-                                                >
-                                                  <EditIcon />
-                                                </IconButton>
-
-                                                <IconButton
-                                                    edge="end"
-                                                    color="error"
-                                                    onClick={() => excluirProduto(produto.id)}
-                                                >
-                                                  <DeleteIcon />
-                                                </IconButton>
-                                              </Box>
-                                          )
-                                      }
-                                  >
-                                    <ListItemButton
-                                        onClick={() => alternarComprado(produto.id)}
-                                        sx={{ pr: modoMercado ? 2 : 10 }}
-                                    >
-                                      <Checkbox
-                                          edge="start"
-                                          checked={produto.comprado}
-                                          tabIndex={-1}
-                                          disableRipple
-                                      />
-
-                                      <ListItemText
-                                          primary={
-                                            <Typography
-                                                fontWeight="bold"
-                                                sx={{
-                                                  textDecoration: produto.comprado
-                                                      ? "line-through"
-                                                      : "none",
-                                                  color: produto.comprado
-                                                      ? "text.secondary"
-                                                      : "text.primary"
-                                                }}
-                                            >
-                                              {produto.nome}
-                                            </Typography>
-                                          }
-                                          secondary={`Total R$ ${totalProduto.toFixed(2)}`}
-                                      />
-                                    </ListItemButton>
-
-                                    <Box
-                                        sx={{
-                                          display: "flex",
-                                          gap: 1,
-                                          mr: modoMercado ? 1 : 9
-                                        }}
-                                        onClick={event => event.stopPropagation()}
-                                    >
-                                      <TextField
-                                          label="Qtd"
-                                          type="number"
-                                          size="small"
-                                          value={quantidadeProduto || ""}
-                                          onChange={event =>
-                                              alterarQuantidadeProduto(
-                                                  produto.id,
-                                                  event.target.value
-                                              )
-                                          }
-                                          sx={{ width: 70 }}
-                                      />
-
-                                      <TextField
-                                          label="Valor"
-                                          type="number"
-                                          size="small"
-                                          value={valorProduto || ""}
-                                          onChange={event =>
-                                              alterarValorProduto(
-                                                  produto.id,
-                                                  event.target.value
-                                              )
-                                          }
-                                          sx={{ width: 95 }}
-                                      />
-                                    </Box>
-                                  </ListItem>
-
-                                  {index < produtosDoSetor.length - 1 && <Divider />}
-                                </Box>
-                            );
-                          })}
-                        </List>
-                      </Collapse>
-                    </Card>
-                  </Box>
-              );
-            })
-        )}
+            {aba === "lista" ? (
+              <ListaPorSetor
+                grupos={produtosPorSetor}
+                modoMercado={modoMercado}
+                setoresAbertos={setoresAbertos}
+                onAlternarSetor={mercado.alternarSetor}
+                onAlternarComprado={produto =>
+                  mercado.atualizarProduto(produto.id, { comprado: !produto.comprado })
+                }
+                onAlterarQuantidade={(produto, quantidade) =>
+                  mercado.atualizarProduto(produto.id, { quantidade: Number(quantidade) })
+                }
+                onAlterarValor={(produto, valor) =>
+                  mercado.atualizarProduto(produto.id, { valor: parseMoeda(valor) })
+                }
+                onMoverProduto={mercado.moverProduto}
+                onEditarProduto={mercado.editarProduto}
+                onExcluirProduto={mercado.excluirProduto}
+                onAdicionarPrimeiro={() => mercado.abrirNovoProduto()}
+              />
+            ) : (
+              <Suspense fallback={<Carregando />}>
+                <HistoricoCompras
+                  historico={historico}
+                  dashboard={dashboardHistorico}
+                  onRepetirCompra={mercado.repetirCompra}
+                  onExcluirCompra={mercado.excluirHistorico}
+                />
+              </Suspense>
+            )}
+          </Stack>
+        </Box>
       </Container>
+
+      <BottomNavigation
+        value={aba}
+        onChange={(_, novaAba) => mercado.setAba(novaAba)}
+        sx={{
+          display: { xs: "flex", md: "none" },
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: theme => theme.zIndex.appBar,
+          borderTop: 1,
+          borderColor: "divider"
+        }}
+      >
+        <BottomNavigationAction value="lista" label="Lista" icon={<ListAltIcon />} />
+        <BottomNavigationAction value="historico" label="Histórico" icon={<HistoryIcon />} />
+      </BottomNavigation>
+
+      <Fab
+        color="primary"
+        aria-label="Adicionar produto"
+        onClick={() => mercado.abrirNovoProduto()}
+        sx={{
+          position: "fixed",
+          right: { xs: 18, md: 32 },
+          bottom: { xs: 86, md: 32 }
+        }}
+      >
+        <AddIcon />
+      </Fab>
+
+      <Suspense fallback={null}>
+        <FormularioProduto
+          aberto={produtoDialogAberto}
+          formulario={formulario}
+          setores={setores}
+          sugestoes={sugestoes}
+          estaEditando={Boolean(produtoEditandoId)}
+          onFormularioChange={mercado.setFormulario}
+          onSubmit={mercado.salvarProduto}
+          onCancelar={mercado.limparFormulario}
+          onAplicarSugestao={mercado.aplicarSugestao}
+        />
+
+        <SetoresDialog
+          aberto={setoresDialogAberto}
+          setores={setores}
+          onFechar={() => mercado.setSetoresDialogAberto(false)}
+          onAdicionarSetor={mercado.adicionarSetor}
+          onRenomearSetor={mercado.renomearSetor}
+          onExcluirSetor={mercado.excluirSetor}
+        />
+
+        <ImportarTextoDialog
+          aberto={importarTextoAberto}
+          texto={textoImportacao}
+          onTextoChange={mercado.setTextoImportacao}
+          onCancelar={() => mercado.setImportarTextoAberto(false)}
+          onImportar={mercado.importarTextoSimples}
+        />
+      </Suspense>
+
+      <DialogConfirmacao
+        aberto={Boolean(confirmacao)}
+        titulo={confirmacao?.titulo}
+        mensagem={confirmacao?.mensagem}
+        textoConfirmacao={confirmacao?.textoConfirmacao}
+        corConfirmacao={confirmacao?.corConfirmacao}
+        onCancelar={mercado.fecharConfirmacao}
+        onConfirmar={mercado.confirmarAcao}
+      />
+
+      <Snackbar
+        open={Boolean(mensagem)}
+        autoHideDuration={3500}
+        onClose={() => mercado.setMensagem(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        {mensagem ? (
+          <Alert
+            severity={mensagem.tipo}
+            variant="filled"
+            onClose={() => mercado.setMensagem(null)}
+          >
+            {mensagem.texto}
+          </Alert>
+        ) : undefined}
+      </Snackbar>
+    </Box>
+  );
+}
+
+function NavButton({ ativo, icon, label, onClick }) {
+  return (
+    <Box
+      component="button"
+      type="button"
+      onClick={onClick}
+      sx={{
+        border: 0,
+        borderRadius: 1,
+        bgcolor: ativo ? "primary.main" : "transparent",
+        color: ativo ? "primary.contrastText" : "text.secondary",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 1,
+        py: 1.2,
+        font: "inherit",
+        fontWeight: 700,
+        cursor: "pointer"
+      }}
+    >
+      {icon}
+      {label}
+    </Box>
+  );
+}
+
+function Carregando() {
+  return (
+    <Box sx={{ display: "grid", placeItems: "center", py: 5 }}>
+      <CircularProgress />
+    </Box>
   );
 }
 
 export default App;
+

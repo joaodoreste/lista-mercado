@@ -1,16 +1,49 @@
-# React + Vite
+# Lista de Mercado
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação React para montar uma lista de compras, separar itens por setor, marcar produtos comprados e acompanhar o valor estimado da compra.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Cadastro e edição de produtos por setor.
+- Modo mercado para marcar itens comprados durante a compra.
+- Quantidade, unidade, valor unitário, observação, total estimado e total no carrinho.
+- Busca por produto, observação ou setor.
+- Filtros para pendentes, comprados, sem preço e sem quantidade.
+- Produtos frequentes e sugestão de último preço usado.
+- Setores personalizados com criação, renomeação e exclusão.
+- Ordenação manual dos itens dentro do setor.
+- Histórico de compras finalizadas.
+- Repetição de compras anteriores.
+- Compartilhamento da lista em texto.
+- Compartilhamento direto via WhatsApp.
+- Importação rápida por texto simples, um produto por linha.
+- Orçamento limite com alerta quando a estimativa passa do valor.
+- Dashboard do histórico com total mensal, média e produtos recorrentes.
+- Backup por arquivo JSON ou área de transferência.
+- Persistência local no navegador com `localStorage`.
+- Tema claro/escuro.
+- PWA instalável com cache básico offline.
 
-## React Compiler
+## Comandos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm run dev
+npm run build
+npm run lint
+npm test
+```
 
-## Expanding the ESLint configuration
+## Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- React
+- Vite
+- Material UI
+- Node Test Runner para testes de regras de domínio
+
+## Qualidade técnica
+
+- Estado persistido em formato versionado (`lista_mercado_estado_v2`).
+- Migração automática das chaves antigas de produtos, setores e histórico.
+- Separação entre tela, hook de aplicação, domínio e storage.
+- Code splitting para React, Material UI e telas carregadas sob demanda.
+- Service worker simples para instalação como aplicativo.

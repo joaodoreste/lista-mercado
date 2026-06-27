@@ -1,28 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import App from "./App.jsx";
-
-const theme = createTheme({
-    palette: {
-        primary: {
-            main: "#2E7D32"
-        },
-        background: {
-            default: "#F5F5F5"
-        }
-    },
-    shape: {
-        borderRadius: 14
-    }
-});
+import AppRoot from "./AppRoot";
+import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-    <React.StrictMode>
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <App />
-        </ThemeProvider>
-    </React.StrictMode>
+  <React.StrictMode>
+    <AppRoot />
+  </React.StrictMode>
 );
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js").catch(() => {});
+  });
+}
