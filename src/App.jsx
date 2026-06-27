@@ -97,16 +97,27 @@ function App({ modoTema, onAlternarTema, podeInstalar, onInstalarApp }) {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="lg" sx={{ py: { xs: 2, md: 3 } }}>
+      <Container
+        maxWidth="lg"
+        disableGutters
+        sx={{ px: { xs: 1.25, sm: 2, md: 3 }, py: { xs: 1.25, md: 3 } }}
+      >
         <Box
           sx={{
             display: "grid",
             gridTemplateColumns: { xs: "1fr", md: "360px minmax(0, 1fr)" },
-            gap: 2.5,
+            gap: { xs: 1.25, md: 2.5 },
             alignItems: "start"
           }}
         >
-          <Stack spacing={2} sx={{ position: { md: "sticky" }, top: { md: 92 } }}>
+          <Stack
+            spacing={{ xs: 1.25, md: 2 }}
+            sx={{
+              position: { md: "sticky" },
+              top: { md: 92 },
+              order: { xs: aba === "lista" ? 2 : 1, md: 1 }
+            }}
+          >
             <ResumoCompra
               resumo={resumo}
               modoMercado={modoMercado}
@@ -143,18 +154,20 @@ function App({ modoTema, onAlternarTema, podeInstalar, onInstalarApp }) {
             </Suspense>
 
             {aba === "lista" && (
-              <PainelFiltros
-                busca={busca}
-                filtro={filtro}
-                produtosFrequentes={frequentes}
-                onBuscaChange={mercado.setBusca}
-                onFiltroChange={mercado.setFiltro}
-                onAdicionarProduto={mercado.abrirNovoProduto}
-              />
+              <Box sx={{ display: { xs: "none", md: "block" } }}>
+                <PainelFiltros
+                  busca={busca}
+                  filtro={filtro}
+                  produtosFrequentes={frequentes}
+                  onBuscaChange={mercado.setBusca}
+                  onFiltroChange={mercado.setFiltro}
+                  onAdicionarProduto={mercado.abrirNovoProduto}
+                />
+              </Box>
             )}
           </Stack>
 
-          <Stack spacing={2}>
+          <Stack spacing={{ xs: 1.25, md: 2 }} sx={{ order: { xs: 1, md: 2 } }}>
             <Paper
               variant="outlined"
               sx={{
@@ -178,25 +191,38 @@ function App({ modoTema, onAlternarTema, podeInstalar, onInstalarApp }) {
             </Paper>
 
             {aba === "lista" ? (
-              <ListaPorSetor
-                grupos={produtosPorSetor}
-                modoMercado={modoMercado}
-                setoresAbertos={setoresAbertos}
-                onAlternarSetor={mercado.alternarSetor}
-                onAlternarComprado={produto =>
-                  mercado.atualizarProduto(produto.id, { comprado: !produto.comprado })
-                }
-                onAlterarQuantidade={(produto, quantidade) =>
-                  mercado.atualizarProduto(produto.id, { quantidade: Number(quantidade) })
-                }
-                onAlterarValor={(produto, valor) =>
-                  mercado.atualizarProduto(produto.id, { valor: parseMoeda(valor) })
-                }
-                onMoverProduto={mercado.moverProduto}
-                onEditarProduto={mercado.editarProduto}
-                onExcluirProduto={mercado.excluirProduto}
-                onAdicionarPrimeiro={() => mercado.abrirNovoProduto()}
-              />
+              <>
+                <Box sx={{ display: { xs: "block", md: "none" } }}>
+                  <PainelFiltros
+                    busca={busca}
+                    filtro={filtro}
+                    produtosFrequentes={frequentes}
+                    onBuscaChange={mercado.setBusca}
+                    onFiltroChange={mercado.setFiltro}
+                    onAdicionarProduto={mercado.abrirNovoProduto}
+                  />
+                </Box>
+
+                <ListaPorSetor
+                  grupos={produtosPorSetor}
+                  modoMercado={modoMercado}
+                  setoresAbertos={setoresAbertos}
+                  onAlternarSetor={mercado.alternarSetor}
+                  onAlternarComprado={produto =>
+                    mercado.atualizarProduto(produto.id, { comprado: !produto.comprado })
+                  }
+                  onAlterarQuantidade={(produto, quantidade) =>
+                    mercado.atualizarProduto(produto.id, { quantidade: Number(quantidade) })
+                  }
+                  onAlterarValor={(produto, valor) =>
+                    mercado.atualizarProduto(produto.id, { valor: parseMoeda(valor) })
+                  }
+                  onMoverProduto={mercado.moverProduto}
+                  onEditarProduto={mercado.editarProduto}
+                  onExcluirProduto={mercado.excluirProduto}
+                  onAdicionarPrimeiro={() => mercado.abrirNovoProduto()}
+                />
+              </>
             ) : (
               <Suspense fallback={<Carregando />}>
                 <HistoricoCompras
@@ -222,7 +248,9 @@ function App({ modoTema, onAlternarTema, podeInstalar, onInstalarApp }) {
           bottom: 0,
           zIndex: theme => theme.zIndex.appBar,
           borderTop: 1,
-          borderColor: "divider"
+          borderColor: "divider",
+          pb: "env(safe-area-inset-bottom)",
+          height: "calc(64px + env(safe-area-inset-bottom))"
         }}
       >
         <BottomNavigationAction value="lista" label="Lista" icon={<ListAltIcon />} />
@@ -236,7 +264,7 @@ function App({ modoTema, onAlternarTema, podeInstalar, onInstalarApp }) {
         sx={{
           position: "fixed",
           right: { xs: 18, md: 32 },
-          bottom: { xs: 86, md: 32 }
+          bottom: { xs: "calc(82px + env(safe-area-inset-bottom))", md: 32 }
         }}
       >
         <AddIcon />

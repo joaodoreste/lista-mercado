@@ -5,6 +5,8 @@ body {
 
 #root {
   min-height: 100svh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 * {
@@ -16,4 +18,9 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+html {
+  width: 100%;
+  overflow-x: hidden;
 }

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Box,
   Checkbox,
   IconButton,
@@ -35,7 +35,7 @@ function ProdutoItem({
       disablePadding
       sx={{
         alignItems: "stretch",
-        flexDirection: { xs: "column", sm: "row" },
+        flexDirection: { xs: "column", md: "row" },
         bgcolor: produto.comprado ? "action.hover" : "transparent",
         transition: theme =>
           theme.transitions.create(["background-color", "opacity"], {
@@ -46,7 +46,7 @@ function ProdutoItem({
       <Box sx={{ display: "flex", flex: 1, minWidth: 0 }}>
         <ListItemButton
           onClick={() => onAlternarComprado(produto)}
-          sx={{ minWidth: 0, py: 1.25 }}
+          sx={{ minWidth: 0, py: { xs: 0.75, sm: 1.25 }, px: { xs: 1, sm: 2 } }}
         >
           <Checkbox
             edge="start"
@@ -84,8 +84,9 @@ function ProdutoItem({
         alignItems="center"
         sx={{
           px: { xs: 2, sm: 1 },
-          pb: { xs: 1.5, sm: 0 },
-          flexWrap: "wrap"
+          pb: { xs: 1.25, md: 0 },
+          flexWrap: "wrap",
+          width: { xs: "100%", md: "auto" }
         }}
         onClick={event => event.stopPropagation()}
       >
@@ -96,7 +97,7 @@ function ProdutoItem({
           value={quantidadeProduto || ""}
           onChange={event => onAlterarQuantidade(produto, event.target.value)}
           inputProps={{ min: 0, step: 0.01 }}
-          sx={{ width: { xs: 92, sm: 86 } }}
+          sx={{ width: { xs: "calc(50% - 4px)", sm: 92, md: 86 } }}
         />
 
         <TextField
@@ -104,11 +105,11 @@ function ProdutoItem({
           size="small"
           value={valorProduto ? String(valorProduto).replace(".", ",") : ""}
           onChange={event => onAlterarValor(produto, event.target.value)}
-          sx={{ width: { xs: 112, sm: 105 } }}
+          sx={{ width: { xs: "calc(50% - 4px)", sm: 112, md: 105 } }}
         />
 
         {!modoMercado && (
-          <Stack direction="row" sx={{ ml: { xs: "auto", sm: 0 } }}>
+          <Stack direction="row" sx={{ ml: { xs: 0, md: 0 }, width: { xs: "100%", sm: "auto" }, justifyContent: { xs: "flex-end", sm: "flex-start" } }}>
             <Tooltip title="Subir">
               <IconButton onClick={() => onMoverProduto(produto, -1)}>
                 <ArrowUpwardIcon />
@@ -140,3 +141,4 @@ function ProdutoItem({
 }
 
 export default ProdutoItem;
+

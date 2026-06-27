@@ -32,14 +32,19 @@ function ListaPorSetor({
   if (grupos.length === 0) {
     return (
       <Card>
-        <Box sx={{ p: 3, textAlign: "center" }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, textAlign: "center" }}>
           <Typography variant="h6" fontWeight="bold">
             Nenhum produto encontrado.
           </Typography>
           <Typography color="text.secondary" sx={{ mb: 2 }}>
             Adicione itens ou ajuste a busca e os filtros.
           </Typography>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={onAdicionarPrimeiro}>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<AddIcon />}
+            onClick={onAdicionarPrimeiro}
+          >
             Adicionar produto
           </Button>
         </Box>
@@ -49,19 +54,25 @@ function ListaPorSetor({
 
   return (
     <>
-      <Typography variant="h6" fontWeight="bold">
+      <Typography
+        variant="h6"
+        fontWeight="bold"
+        sx={{ fontSize: { xs: "1.05rem", sm: "1.25rem" } }}
+      >
         Produtos
       </Typography>
 
       {grupos.map(grupo => (
-        <Box key={grupo.setor} sx={{ mb: 2 }}>
+        <Box key={grupo.setor} sx={{ mb: { xs: 1.25, md: 2 } }}>
           <Card>
             <ListItemButton
               onClick={() => onAlternarSetor(grupo.setor)}
               sx={{
                 borderLeft: 4,
                 borderColor: corSetor(grupo.setor),
-                alignItems: "flex-start"
+                alignItems: "flex-start",
+                py: { xs: 1, sm: 1.5 },
+                px: { xs: 1.25, sm: 2 }
               }}
             >
               <Box sx={{ pt: 0.5 }}>

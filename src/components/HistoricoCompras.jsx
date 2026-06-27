@@ -16,7 +16,7 @@ function HistoricoCompras({ historico, dashboard, onRepetirCompra, onExcluirComp
   if (historico.length === 0) {
     return (
       <Card>
-        <CardContent>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
           <Typography fontWeight="bold">Nenhuma compra finalizada.</Typography>
           <Typography color="text.secondary">
             Finalize uma compra para guardar valores, acompanhar gastos e repetir itens depois.
@@ -32,7 +32,7 @@ function HistoricoCompras({ historico, dashboard, onRepetirCompra, onExcluirComp
 
       {historico.map(compra => (
         <Card key={compra.id}>
-          <CardContent>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
             <Stack spacing={1.5}>
               <Box>
                 <Typography fontWeight="bold">
@@ -83,7 +83,7 @@ function HistoricoCompras({ historico, dashboard, onRepetirCompra, onExcluirComp
 function DashboardHistorico({ dashboard }) {
   return (
     <Card>
-      <CardContent>
+      <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
         <Stack spacing={2}>
           <Typography fontWeight="bold">Resumo do mês</Typography>
           <Box

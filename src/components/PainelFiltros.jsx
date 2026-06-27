@@ -23,14 +23,15 @@ function PainelFiltros({
 }) {
   return (
     <Card>
-      <CardContent>
-        <Stack spacing={2}>
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+      <CardContent sx={{ p: { xs: 1.25, sm: 2 } }}>
+        <Stack spacing={{ xs: 1.25, sm: 2 }}>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: 1, sm: 1.5 }}>
             <TextField
               label="Buscar"
               value={busca}
               onChange={event => onBuscaChange(event.target.value)}
               fullWidth
+              size="small"
               InputProps={{ startAdornment: <SearchIcon fontSize="small" sx={{ mr: 1 }} /> }}
             />
 
@@ -39,6 +40,7 @@ function PainelFiltros({
               label="Filtro"
               value={filtro}
               onChange={event => onFiltroChange(event.target.value)}
+              size="small"
               sx={{ minWidth: { sm: 190 } }}
             >
               {Object.entries(FILTROS).map(([valor, label]) => (
@@ -61,6 +63,7 @@ function PainelFiltros({
                     label={produto.nome}
                     onClick={() => onAdicionarProduto(produto)}
                     variant="outlined"
+                    size="small"
                   />
                 ))}
               </Stack>
@@ -71,6 +74,7 @@ function PainelFiltros({
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => onAdicionarProduto()}
+            size="small"
           >
             Adicionar produto
           </Button>

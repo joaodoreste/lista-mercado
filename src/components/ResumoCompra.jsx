@@ -1,4 +1,4 @@
-import {
+﻿import {
   Box,
   Button,
   Card,
@@ -51,11 +51,16 @@ function ResumoCompra({
 
   return (
     <Card>
-      <CardContent>
-        <Stack spacing={1.5}>
-          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" gap={2}>
+      <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+        <Stack spacing={{ xs: 1.25, sm: 1.5 }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" gap={1.25}>
             <Box>
-              <Typography variant="h5" fontWeight="bold" lineHeight={1.1}>
+              <Typography
+                variant="h5"
+                fontWeight="bold"
+                lineHeight={1.1}
+                sx={{ fontSize: { xs: "1.3rem", sm: "1.5rem" } }}
+              >
                 {formatarMoeda(resumo.totalCompra)}
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -67,6 +72,7 @@ function ResumoCompra({
               variant={modoMercado ? "contained" : "outlined"}
               startIcon={<StorefrontIcon />}
               onClick={onAlternarModoMercado}
+              size="small"
             >
               {modoMercado ? "Sair" : "Mercado"}
             </Button>
@@ -97,6 +103,7 @@ function ResumoCompra({
               startIcon={<CheckCircleIcon />}
               disabled={!temProdutos}
               onClick={onFinalizarCompra}
+              size="small"
             >
               Finalizar
             </Button>
@@ -105,6 +112,7 @@ function ResumoCompra({
               variant="outlined"
               startIcon={<MoreVertIcon />}
               onClick={event => setAncoraMenu(event.currentTarget)}
+              size="small"
             >
               Ações
             </Button>
@@ -227,17 +235,20 @@ function MiniResumo({ label, valor }) {
       variant="outlined"
       sx={{
         flex: 1,
-        py: 1,
-        px: 1.25,
+        py: { xs: 0.75, sm: 1 },
+        px: { xs: 1, sm: 1.25 },
         bgcolor: "background.default"
       }}
     >
       <Typography variant="caption" color="text.secondary">
         {label}
       </Typography>
-      <Typography fontWeight="bold">{valor}</Typography>
+      <Typography fontWeight="bold" sx={{ fontSize: { xs: "0.95rem", sm: "1rem" } }}>
+        {valor}
+      </Typography>
     </Paper>
   );
 }
 
 export default ResumoCompra;
+

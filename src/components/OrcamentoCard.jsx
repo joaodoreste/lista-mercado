@@ -16,8 +16,8 @@ function OrcamentoCard({ statusOrcamento, orcamento, onSalvarOrcamento }) {
 
   return (
     <Card>
-      <CardContent>
-        <Stack spacing={1.5}>
+      <CardContent sx={{ p: { xs: 1.25, sm: 2 } }}>
+        <Stack spacing={{ xs: 1.1, sm: 1.5 }}>
           <Stack direction="row" spacing={1} alignItems="center">
             <SavingsIcon color={statusOrcamento.excedido ? "error" : "primary"} />
             <Typography fontWeight="bold">Orçamento</Typography>
@@ -29,9 +29,10 @@ function OrcamentoCard({ statusOrcamento, orcamento, onSalvarOrcamento }) {
             onChange={event => setValor(event.target.value)}
             placeholder="Ex: 300,00"
             fullWidth
+            size="small"
           />
 
-          <Button variant="outlined" onClick={() => onSalvarOrcamento(valor)}>
+          <Button variant="outlined" size="small" onClick={() => onSalvarOrcamento(valor)}>
             Salvar limite
           </Button>
 
